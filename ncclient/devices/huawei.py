@@ -16,6 +16,7 @@ from ncclient.xml_ import BASE_NS_1_0
 
 from .default import DefaultDeviceHandler
 
+
 class HuaweiDeviceHandler(DefaultDeviceHandler):
     """
     Huawei handler for device specific information.
@@ -38,13 +39,12 @@ class HuaweiDeviceHandler(DefaultDeviceHandler):
         return c
 
     def get_xml_base_namespace_dict(self):
-        return { "xmlns":BASE_NS_1_0 }
+        return {None: BASE_NS_1_0}
 
     def get_xml_extra_prefix_kwargs(self):
-        d = {
-                # "xmlns":"http://www.huawei.com/netconf/vrp"
-            }
+        d = {}
         d.update(self.get_xml_base_namespace_dict())
-        return d
+        return {"nsmap": d}
 
-
+    def perform_qualify_check(self):
+        return False

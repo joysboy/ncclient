@@ -5,7 +5,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
+# http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,10 +15,9 @@
 
 "Methods for creating, parsing, and dealing with XML and ElementTree objects."
 
-
 import io
-
 from StringIO import StringIO
+
 from lxml import etree
 
 # In case issues come up with XML generation/parsing
@@ -26,6 +25,9 @@ from lxml import etree
 # well as lxml v3.0+
 
 from ncclient import NCClientError
+
+parser = etree.XMLParser(recover=True)
+
 
 class XMLError(NCClientError):
     pass
@@ -84,15 +86,18 @@ def to_xml(ele, encoding="UTF-8", pretty_print=False):
     xml = etree.tostring(ele, encoding=encoding, pretty_print=pretty_print)
     return xml if xml.startswith('<?xml') else '<?xml version="1.0" encoding="%s"?>%s' % (encoding, xml)
 
+
 def to_ele(x):
     "Convert and return the :class:`~xml.etree.ElementTree.Element` for the XML document *x*. If *x* is already an :class:`~xml.etree.ElementTree.Element` simply returns that."
-    return x if etree.iselement(x) else etree.fromstring(x)
+    return x if etree.iselement(x) else etree.fromstring(x, parser=parser)
+
 
 def parse_root(raw):
     "Efficiently parses the root element of a *raw* XML document, returning a tuple of its qualified name and attribute dictionary."
     fp = StringIO(raw)
     for event, element in etree.iterparse(fp, events=('start',)):
         return (element.tag, element.attrib)
+
 
 def validated_element(x, tags=None, attrs=None):
     """Checks if the root element of an XML document or Element meets the supplied criteria.
@@ -119,43 +124,65 @@ def validated_element(x, tags=None, attrs=None):
                 raise XMLError("Element [%s] does not have required attributes" % ele.tag)
     return ele
 
+
 XPATH_NAMESPACES = {
-    're':'http://exslt.org/regular-expressions'
+    're': 'http://exslt.org/regular-expressions'
 }
+
 
 class NCElement(object):
     def __init__(self, result, transform_reply):
         self.__result = result
         self.__transform_reply = transform_reply
         self.__doc = self.remove_namespaces(self.__result)
-        
+
 
     def xpath(self, expression):
+        """
+            return result for a call to lxml xpath()
+            output will be a list
+        """
         self.__expression = expression
         self.__namespaces = XPATH_NAMESPACES
         return self.__doc.xpath(self.__expression, namespaces=self.__namespaces)
 
     def find(self, expression):
+        """return result for a call to lxml ElementPath find()"""
         self.__expression = expression
         return self.__doc.find(self.__expression)
 
+    def findtext(self, expression):
+        """return result for a call to lxml ElementPath findtext()"""
+        self.__expression = expression
+        return self.__doc.findtext(self.__expression)
+
+
+    def __str__(self):
+        """syntactic sugar for str() - alias to tostring"""
+        return self.tostring
+
     @property
     def tostring(self):
-        return etree.tostring(self.__doc, pretty_print=True)
+        """return a pretty-printed string output for rpc reply"""
+        parser = etree.XMLParser(remove_blank_text=True)
+        outputtree = etree.XML(etree.tostring(self.__doc), parser)
+        return etree.tostring(outputtree, pretty_print=True)
 
     @property
     def data_xml(self):
+        """return an unmodified output for rpc reply"""
         return to_xml(self.__doc)
 
     def remove_namespaces(self, rpc_reply):
-        self.__xslt=self.__transform_reply
+        """remove xmlns attributes from rpc reply"""
+        self.__xslt = self.__transform_reply
         self.__parser = etree.XMLParser(remove_blank_text=True)
         self.__xslt_doc = etree.parse(io.BytesIO(self.__xslt), self.__parser)
         self.__transform = etree.XSLT(self.__xslt_doc)
         self.__root = etree.fromstring(str(self.__transform(etree.parse(StringIO(rpc_reply)))))
         return self.__root
-        
 
-new_ele = lambda tag, attrs={}, **extra: etree.Element(qualify(tag), attrs, **extra)
 
-sub_ele = lambda parent, tag, attrs={}, **extra: etree.SubElement(parent, qualify(tag), attrs, **extra)
+new_ele = lambda tag, attrs={}, **extra: etree.Element(tag, attrs, **extra)
+
+sub_ele = lambda parent, tag, attrs={}, **extra: etree.SubElement(parent, tag, attrs, **extra)
