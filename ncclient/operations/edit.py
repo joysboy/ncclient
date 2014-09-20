@@ -18,8 +18,6 @@ from ncclient.xml_ import *
 from rpc import RPC
 import util
 
-import logging
-
 logger = logging.getLogger("ncclient.operations.edit")
 
 "Operations related to changing device configuration"
