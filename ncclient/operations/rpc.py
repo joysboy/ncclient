@@ -256,7 +256,7 @@ class RPC(object):
             for cap in self.DEPENDS:
                 self._assert(cap)
         except AttributeError:
-            pass
+            raise MissingCapabilityError
         self._async = async
         self._timeout = timeout
         self._raise_mode = raise_mode
