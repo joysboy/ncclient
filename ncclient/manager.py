@@ -84,8 +84,7 @@ def make_device_handler(device_params):
 def connect_ssh(*args, **kwds):
     """
     Initialize a :class:`Manager` over the SSH transport.
-    For documentation of arguments see :meth:
-        `ncclient.transport.SSHSession.connect`.
+    For documentation of arguments see :meth:`ncclient.transport.SSHSession.connect`.
 
     The underlying :class:`ncclient.transport.SSHSession` is created with
         :data:`CAPABILITIES`. It is first instructed to
@@ -95,7 +94,7 @@ def connect_ssh(*args, **kwds):
 
     To invoke advanced vendor related operation add device_params =
         {'name':'<vendor_alias>'} in connection paramerers. For the time,
-        'junos' and 'nxos' are supported for Juniper and Cisco Nexus respectively.
+        'junos' and 'nexus' are supported for Juniper and Cisco Nexus respectively.
     """
     # Extract device parameter dict, if it was passed into this function. Need to
     # remove it from kwds, since the session.connect() doesn't like extra stuff in
@@ -113,7 +112,12 @@ def connect_ssh(*args, **kwds):
     session = transport.SSHSession(device_handler)
     session.load_known_hosts()
 
-    session.connect(*args, **kwds)
+    try:
+       session.connect(*args, **kwds)
+    except Exception as ex:
+        if session.transport:
+            session.close()
+        raise ex
     return Manager(session, device_handler, **kwds)
 
 def connect_ioproc(*args, **kwds):

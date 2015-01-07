@@ -32,10 +32,18 @@ For example to invoke Juniper's functions annd params one has to re-write the ab
         with open("%s.xml" % host, 'w') as f:
             f.write(c)
 
-Respectively, for Cisco nxos, the name is **nxos**.
+Respectively, for Cisco Nexus, the name is **nexus**.
 Device handlers are easy to implement and prove to be futureproof.
 
 The latest pull request merge includes support for Huawei devices with name **huawei** in device_params.
+
+Supported device handlers
+-------------------------
+* Juniper: device_params={'name':'junos'}
+* Cisco CSR: device_params={'name':'csr'}
+* Cisco Nexus: device_params={'name':'nexus'}
+* Huawei: device_params={'name':'huawei'}
+
 
 Contents:
 

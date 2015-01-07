@@ -1,4 +1,7 @@
 [![Build Status](https://travis-ci.org/leopoul/ncclient.svg?branch=master)](https://travis-ci.org/leopoul/ncclient)
+[![PyPi version](https://pypip.in/v/ncclient/badge.png)](https://crate.io/packages/ncclient/)
+[![PyPi downloads](https://pypip.in/d/ncclient/badge.png)](https://crate.io/packages/ncclient/)
+[![Documentation Status](https://readthedocs.org/projects/ncclient/badge/?version=latest)](https://readthedocs.org/projects/ncclient/?badge=latest)
 
 ncclient: Python library for NETCONF clients
 --------------------------------------------
@@ -6,11 +9,7 @@ ncclient: Python library for NETCONF clients
 ncclient is a Python library that facilitates client-side scripting
 and application development around the NETCONF protocol. `ncclient` was
 developed by [Shikar Bhushan](http://schmizz.net). It is now maintained
-by [Leonidas Poulopoulos (@leopoul)](http://ncclient.grnet.gr)
-
-This version includes a merge of [Juniper Networks](http://www.juniper.net)
-and [Cisco Systems](http://www.cisco.com) respective ncclient forks based
-on [leopoul/ncclient v0.3.2](https://github.com/leopoul/ncclient)
+by [Leonidas Poulopoulos (@leopoul)](http://ncclient.org/ncclient/)
 
 **Docs**: [http://ncclient.readthedocs.org](http://ncclient.readthedocs.org)
 
@@ -41,7 +40,7 @@ or via pip:
     [ncclient] $ python examples/juniper/*.py
 
 ### Usage
-#####Get device running config
+####Get device running config
 Use either an interactive Python console (ipython)
 or integrate the following in your code:
 
@@ -52,7 +51,7 @@ or integrate the following in your code:
         with open("%s.xml" % host, 'w') as f:
             f.write(c)
 
-As this version integrates Juniper's and Cisco's forks, lots of new concepts
+As of 0.4.1 ncclient integrates Juniper's and Cisco's forks, lots of new concepts
 have been introduced that ease management of Juniper and Cisco devices respectively.
 The biggest change is the introduction of device handlers in connection paramms.
 For example to invoke Juniper's functions annd params one has to re-write the above with ***device_params={'name':'junos'}***:
@@ -64,16 +63,26 @@ For example to invoke Juniper's functions annd params one has to re-write the ab
         with open("%s.xml" % host, 'w') as f:
             f.write(c)
 
-Respectively, for Cisco nxos, the name is **nxos**.
 Device handlers are easy to implement and prove to be futureproof.
 
+####Supported device handlers
+
+* Juniper: device_params={'name':'junos'}
+* Cisco CSR: device_params={'name':'csr'}
+* Cisco Nexus: device_params={'name':'nexus'}
+* Huawei: device_params={'name':'huawei'}
+
+
 ### Changes | brief
-* Switch between replies if custom handler is found
-* Add Juniper, Cisco and default device handlers
-* Allow preferred SSH subsystem name in device params
-* Allow iteration over multiple SSH subsystem names.
+
+* Nexus exec_command operation
+* Allow specifying multiple cmd elements in Cisco Nexus
+* Update rpc for nested rpc-errors
+* Prevent race condition in threading
+* Prevent hanging in session close
 
 ### Acknowledgements
-Many thanks, primarily to [Jeremy Schulman](https://github.com/jeremyschulman) (Juniper) for providing his precious feedback,
-to [Ebben Aries](https://github.com/earies) (Juniper) for his contribution, to Juergen Brendel (Cisco) for the Cisco fork and
-to all contributors from Cisco and Juniper.
+* v0.4.3: Thanks to all contributors and bug hunters; [Jeremy Schulman](https://github.com/jeremyschulman), [Ray Solomon](https://github.com/rsolomo), [Rick Sherman](https://github.com/shermdog), [subhak186](https://github.com/subhak186)
+* v0.4.2: Thanks to all contributors; [katharh](https://github.com/katharh), [Francis Luong (Franco)](https://github.com/francisluong), [Vincent Bernat](https://github.com/vincentbernat), [Juergen Brendel](https://github.com/juergenbrendel), [Quentin Loos](https://github.com/Kent1), [Ray Solomon](https://github.com/rsolomo), [Sebastian Wiesinger](https://github.com/sebastianw), [Ebben Aries](https://github.com/earies) 
+* v0.4.1: Many thanks, primarily to [Jeremy Schulman](https://github.com/jeremyschulman) (Juniper) for providing his precious feedback, to [Ebben Aries](https://github.com/earies) (Juniper) for his contribution, to Juergen Brendel (Cisco) for the Cisco fork and to all contributors from Cisco and Juniper.
+
